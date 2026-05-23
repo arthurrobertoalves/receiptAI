@@ -38,7 +38,9 @@ export function HistoryClient({ initialExpenses }: { initialExpenses: Expense[] 
     const endOfPrev = new Date(now.getFullYear(), now.getMonth(), 0, 23, 59, 59);
 
     return initialExpenses.filter((e) => {
-      const d = new Date(e.expenseDate ?? e.createdAt);
+      // Time-range filters use createdAt (scan date) so a receipt scanned today
+      // always appears under "Este mês" regardless of the date printed on the receipt.
+      const d = new Date(e.createdAt);
       switch (filter) {
         case 'ALL': return true;
         case 'WEEK': return d >= startOfWeek;
@@ -55,11 +57,11 @@ export function HistoryClient({ initialExpenses }: { initialExpenses: Expense[] 
     const prevStart = new Date(now.getFullYear(), now.getMonth() - 1, 1);
     const prevEnd = new Date(now.getFullYear(), now.getMonth(), 0, 23, 59, 59);
     const current = initialExpenses
-      .filter((e) => new Date(e.expenseDate ?? e.createdAt) >= startOfMonth)
+      .filter((e) => new Date(e.createdAt) >= startOfMonth)
       .reduce((s, e) => s + e.amount, 0);
     const previous = initialExpenses
       .filter((e) => {
-        const d = new Date(e.expenseDate ?? e.createdAt);
+        const d = new Date(e.createdAt);
         return d >= prevStart && d <= prevEnd;
       })
       .reduce((s, e) => s + e.amount, 0);

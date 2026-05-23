@@ -11,7 +11,8 @@ function monthKey(iso: string) {
 }
 
 function dateOf(e: Expense) {
-  return e.expenseDate ?? e.createdAt.slice(0, 10);
+  // Use createdAt (scan date) so expenses always land in the month they were scanned.
+  return e.createdAt.slice(0, 10);
 }
 
 export default async function InsightsPage() {

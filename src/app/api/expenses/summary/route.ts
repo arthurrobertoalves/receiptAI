@@ -17,7 +17,7 @@ export async function GET() {
     const prev = new Date(now.getFullYear(), now.getMonth() - 1, 1);
     const prevKey = `${prev.getFullYear()}-${String(prev.getMonth() + 1).padStart(2, '0')}`;
 
-    const dateOf = (e: Expense) => e.expenseDate ?? e.createdAt.slice(0, 10);
+    const dateOf = (e: Expense) => e.createdAt.slice(0, 10);
 
     const current = all.filter((e) => monthKey(dateOf(e)) === currentKey);
     const previous = all.filter((e) => monthKey(dateOf(e)) === prevKey);

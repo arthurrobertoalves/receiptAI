@@ -23,7 +23,9 @@ export default async function DashboardPage() {
 
   const now = new Date();
   const currentKey = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
-  const dateOf = (e: Expense) => e.expenseDate ?? e.createdAt.slice(0, 10);
+  // Use createdAt (scan date) so newly scanned expenses always appear in the current month,
+  // regardless of the date printed on the receipt.
+  const dateOf = (e: Expense) => e.createdAt.slice(0, 10);
 
   const current = all.filter((e) => monthKey(dateOf(e)) === currentKey);
   const currentTotal = current.reduce((sum, e) => sum + e.amount, 0);
