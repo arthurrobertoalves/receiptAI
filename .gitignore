@@ -1,0 +1,19 @@
+node_modules/
+.next/
+out/
+*.tsbuildinfo
+next-env.d.ts
+
+# Env com segredos — nunca versionar
+.env.local
+.env*.local
+
+# Legado JSON db (substituído por Supabase)
+data/
+
+# Uploads locais (substituídos por Supabase Storage)
+public/uploads/
+
+# OS
+.DS_Store
+Thumbs.db
