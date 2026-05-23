@@ -15,14 +15,14 @@ Campos obrigatórios:
   "raw_text": <todo o texto que você lê na nota, numa única string com \\n entre linhas>
 }
 
-Regras de categoria:
-- FOOD: supermercado, padaria, restaurante, lanchonete, delivery, café
-- TRANSPORT: posto de gasolina, uber, 99, táxi, estacionamento, combustível, passagem
-- SUPPLIES: papelaria, material de escritório, Amazon, Mercado Livre, loja de informática
-- SOFTWARE: AWS, Azure, Google Cloud, Netflix, Spotify, Adobe, assinaturas digitais
-- UTILITIES: conta de luz, água, gás, telefone, internet, operadoras
-- SERVICES: contador, advocacia, consultoria, clínica, manutenção
-- OTHER: qualquer outro caso
+Regras de categoria (prioridade de cima para baixo):
+- FOOD: qualquer mercado, supermercado, hipermercado, atacado, padaria, restaurante, lanchonete, pizzaria, delivery (iFood, Rappi), café, açougue, hortifruti — mesmo que o nome contenha "Central", "Ltda", etc.
+- TRANSPORT: posto de gasolina/combustível (Ipiranga, Shell, BR, Petrobras), Uber, 99, táxi, estacionamento, passagem de ônibus/metrô, companhias aéreas
+- SOFTWARE: AWS, Azure, Google Cloud, Digital Ocean, Netflix, Spotify, Adobe, Figma, Notion, Slack, Zoom, GitHub, assinatura digital, SaaS
+- UTILITIES: conta de luz, água, gás, telefone fixo/móvel (Claro, Vivo, TIM, Oi), internet, SABESP, CEMIG, ENEL
+- SUPPLIES: papelaria, Kalunga, Amazon (produtos físicos), Mercado Livre, loja de informática, material de escritório — somente se NÃO for alimento
+- SERVICES: contador, advocacia, consultoria, clínica médica/odontológica, manutenção, reparo
+- OTHER: qualquer outro caso não listado acima
 
 Retorne somente o JSON, nada mais.`;
 

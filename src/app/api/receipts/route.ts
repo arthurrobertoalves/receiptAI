@@ -78,10 +78,10 @@ export async function POST(request: Request) {
     }
 
     // 4. Atualiza receipt com texto extraído
-    await db.receipts.update(receipt.id, {
+    const updatedReceipt = await db.receipts.update(receipt.id, {
       rawText: parsed.rawText,
       status: 'PROCESSED',
-    });
+    }) ?? receipt;
 
     // 5. Cria despesa com dados da IA
     const expense: Expense = {
@@ -101,7 +101,7 @@ export async function POST(request: Request) {
     };
     await db.expenses.create(expense);
 
-    return NextResponse.json({ receipt, expense, parsed }, { status: 201 });
+    return NextResponse.json({ receipt: updatedReceipt, expense, parsed }, { status: 201 });
   } catch (err) {
     if (err instanceof HttpError) {
       return NextResponse.json({ error: err.message }, { status: err.status });
