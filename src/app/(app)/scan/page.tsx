@@ -10,7 +10,7 @@ type Mode = 'idle' | 'camera' | 'preview' | 'uploading' | 'done' | 'error';
 
 const STEPS = [
   { icon: 'upload', label: 'Enviando imagem…' },
-  { icon: 'document_scanner', label: 'Google Vision lendo o texto…' },
+  { icon: 'document_scanner', label: 'Groq analisando a imagem…' },
   { icon: 'auto_awesome', label: 'IA extraindo valor e estabelecimento…' },
   { icon: 'check_circle', label: 'Salvando despesa…' },
 ];
@@ -137,14 +137,13 @@ export default function ScanPage() {
       <section className="mb-5">
         <h1 className="font-sora text-headline-md md:text-headline-lg">Escanear recibo</h1>
         <p className="text-on-surface-variant mt-1">
-          Use a câmera ou envie uma imagem — o Google Vision + IA cuidam do resto.
+          Use a câmera ou envie uma imagem — o Groq Vision + IA cuidam do resto.
         </p>
       </section>
 
-      {/* Viewport */}
-      <GlassCard
-        radius="4xl"
-        className="relative overflow-hidden bg-black/90"
+      {/* Viewport — plain div, NOT GlassCard: backdrop-filter blocks <video> on mobile browsers */}
+      <div
+        className="relative overflow-hidden rounded-4xl bg-black"
         style={{ aspectRatio: '4/3' }}
       >
         {mode === 'camera' && (
@@ -260,7 +259,7 @@ export default function ScanPage() {
             </div>
           </div>
         )}
-      </GlassCard>
+      </div>
 
       {/* Controls */}
       <div className="mt-6 flex flex-col items-center gap-5">
@@ -362,9 +361,9 @@ export default function ScanPage() {
             <p className="font-semibold text-sm">Como funciona</p>
             <p className="text-xs text-on-surface-variant mt-1">
               Sua imagem é enviada ao servidor, processada pelo{' '}
-              <strong>Google Cloud Vision</strong> para extrair o texto, e os dados estruturados
-              (valor, estabelecimento, data) são salvos no seu banco Supabase. Nenhuma imagem é
-              compartilhada com terceiros além do Google Vision.
+              <strong>Groq + Llama 4 Vision</strong> para extrair texto e dados estruturados
+              (valor, estabelecimento, data), e salvos no seu banco Supabase. 100% gratuito,
+              sem cartão de crédito.
             </p>
           </div>
         </GlassCard>
