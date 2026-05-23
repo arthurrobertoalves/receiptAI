@@ -1,18 +1,18 @@
-'use client';
+"use client";
 
-import { useCallback, useEffect, useRef, useState } from 'react';
-import { useRouter } from 'next/navigation';
-import clsx from 'clsx';
-import { GlassCard } from '@/components/ui/GlassCard';
-import { Icon } from '@/components/ui/Icon';
+import { useCallback, useEffect, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
+import clsx from "clsx";
+import { GlassCard } from "@/components/ui/GlassCard";
+import { Icon } from "@/components/ui/Icon";
 
-type Mode = 'idle' | 'camera' | 'preview' | 'uploading' | 'done' | 'error';
+type Mode = "idle" | "camera" | "preview" | "uploading" | "done" | "error";
 
 const STEPS = [
-  { icon: 'upload', label: 'Enviando imagem…' },
-  { icon: 'document_scanner', label: 'Groq analisando a imagem…' },
-  { icon: 'auto_awesome', label: 'IA extraindo valor e estabelecimento…' },
-  { icon: 'check_circle', label: 'Salvando despesa…' },
+  { icon: "upload", label: "Enviando imagem…" },
+  { icon: "document_scanner", label: "Groq analisando a imagem…" },
+  { icon: "auto_awesome", label: "IA extraindo valor e estabelecimento…" },
+  { icon: "check_circle", label: "Salvando despesa…" },
 ];
 
 export default function ScanPage() {
@@ -21,7 +21,7 @@ export default function ScanPage() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const streamRef = useRef<MediaStream | null>(null);
 
-  const [mode, setMode] = useState<Mode>('idle');
+  const [mode, setMode] = useState<Mode>("idle");
   const [preview, setPreview] = useState<string | null>(null);
   const [blob, setBlob] = useState<Blob | null>(null);
   const [step, setStep] = useState(0);
@@ -35,39 +35,49 @@ export default function ScanPage() {
   useEffect(() => () => stopStream(), [stopStream]);
 
   async function startCamera() {
-    setError(null);
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({
-        video: { facingMode: { ideal: 'environment' }, width: { ideal: 1280 } },
-        audio: false,
-      });
-      streamRef.current = stream;
-      if (videoRef.current) {
-        videoRef.current.srcObject = stream;
-        await videoRef.current.play();
-      }
-      setMode('camera');
-    } catch {
-      setError('Câmera não acessível. Verifique permissões ou use o upload de imagem.');
-    }
+  setError(null);
+
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({
+      video: { facingMode: { ideal: 'environment' } },
+      audio: false,
+    });
+
+    streamRef.current = stream;
+    setMode('camera');
+
+    setTimeout(() => {
+      const video = videoRef.current;
+      if (!video) return;
+
+      video.srcObject = stream;
+      video.muted = true;
+      video.playsInline = true;
+
+      video.play().catch(console.error);
+    }, 50);
+
+  } catch (e) {
+    setError('Câmera não acessível.');
   }
+}
 
   function captureFromCamera() {
     if (!videoRef.current) return;
     const video = videoRef.current;
-    const canvas = document.createElement('canvas');
+    const canvas = document.createElement("canvas");
     canvas.width = video.videoWidth;
     canvas.height = video.videoHeight;
-    canvas.getContext('2d')?.drawImage(video, 0, 0);
+    canvas.getContext("2d")?.drawImage(video, 0, 0);
     canvas.toBlob(
       (b) => {
         if (!b) return;
         setBlob(b);
         setPreview(URL.createObjectURL(b));
         stopStream();
-        setMode('preview');
+        setMode("preview");
       },
-      'image/jpeg',
+      "image/jpeg",
       0.92,
     );
   }
@@ -75,14 +85,14 @@ export default function ScanPage() {
   function onFilePicked(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     if (!file) return;
-    if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type)) {
-      setError('Formato não suportado. Envie JPG, PNG ou WEBP.');
+    if (!["image/jpeg", "image/png", "image/webp"].includes(file.type)) {
+      setError("Formato não suportado. Envie JPG, PNG ou WEBP.");
       return;
     }
     setBlob(file);
     setPreview(URL.createObjectURL(file));
     stopStream();
-    setMode('preview');
+    setMode("preview");
     setError(null);
   }
 
@@ -92,12 +102,12 @@ export default function ScanPage() {
     setBlob(null);
     setStep(0);
     setError(null);
-    setMode('idle');
+    setMode("idle");
   }
 
   async function upload() {
     if (!blob) return;
-    setMode('uploading');
+    setMode("uploading");
     setStep(0);
     setError(null);
 
@@ -108,25 +118,25 @@ export default function ScanPage() {
 
     try {
       const fd = new FormData();
-      fd.append('file', blob, blob instanceof File ? blob.name : 'capture.jpg');
+      fd.append("file", blob, blob instanceof File ? blob.name : "capture.jpg");
 
-      const res = await fetch('/api/receipts', { method: 'POST', body: fd });
+      const res = await fetch("/api/receipts", { method: "POST", body: fd });
       const data = await res.json();
 
       clearTimeout(timer1);
       clearTimeout(timer2);
       clearTimeout(timer3);
 
-      if (!res.ok) throw new Error(data.error ?? 'Falha ao processar');
+      if (!res.ok) throw new Error(data.error ?? "Falha ao processar");
       setStep(3);
-      setMode('done');
+      setMode("done");
       router.push(`/history/${data.expense.id}`);
     } catch (err) {
       clearTimeout(timer1);
       clearTimeout(timer2);
       clearTimeout(timer3);
-      setError(err instanceof Error ? err.message : 'Erro ao enviar');
-      setMode('error');
+      setError(err instanceof Error ? err.message : "Erro ao enviar");
+      setMode("error");
     }
   }
 
@@ -135,7 +145,9 @@ export default function ScanPage() {
   return (
     <div className="animate-fade-in pb-20">
       <section className="mb-5">
-        <h1 className="font-sora text-headline-md md:text-headline-lg">Escanear recibo</h1>
+        <h1 className="font-sora text-headline-md md:text-headline-lg">
+          Escanear recibo
+        </h1>
         <p className="text-on-surface-variant mt-1">
           Use a câmera ou envie uma imagem — o Groq Vision + IA cuidam do resto.
         </p>
@@ -144,46 +156,58 @@ export default function ScanPage() {
       {/* Viewport — plain div, NOT GlassCard: backdrop-filter blocks <video> on mobile browsers */}
       <div
         className="relative overflow-hidden rounded-4xl bg-black"
-        style={{ aspectRatio: '4/3' }}
+        style={{ aspectRatio: "16/9" }}
       >
-        {mode === 'camera' && (
+        {mode === "camera" && (
           <video
             ref={videoRef}
+            className="absolute inset-0 w-full h-full object-cover"
+            autoPlay
             playsInline
             muted
-            className="absolute inset-0 w-full h-full object-cover"
-            style={{ filter: 'brightness(0.85)' }}
           />
         )}
 
-        {(mode === 'preview' || mode === 'uploading' || mode === 'done' || mode === 'error') &&
+        {(mode === "preview" ||
+          mode === "uploading" ||
+          mode === "done" ||
+          mode === "error") &&
           preview && (
             <img
               src={preview}
               alt="Recibo"
               className="absolute inset-0 w-full h-full object-cover transition-all duration-500"
               style={{
-                filter: mode === 'uploading' ? 'brightness(0.55) saturate(0.5)' : 'brightness(0.85)',
+                filter:
+                  mode === "uploading"
+                    ? "brightness(0.55) saturate(0.5)"
+                    : "brightness(0.85)",
               }}
             />
           )}
 
-        {mode === 'idle' && (
+        {mode === "idle" && (
           <div className="absolute inset-0 flex items-center justify-center">
             <div className="text-center text-white/70">
-              <Icon name="document_scanner" size={64} className="mb-3 inline-block" />
+              <Icon
+                name="document_scanner"
+                size={64}
+                className="mb-3 inline-block"
+              />
               <p className="font-sora text-xl">Pronto para escanear</p>
-              <p className="text-sm text-white/60 mt-1">Escolha um modo abaixo.</p>
+              <p className="text-sm text-white/60 mt-1">
+                Escolha um modo abaixo.
+              </p>
             </div>
           </div>
         )}
 
         {/* Header overlay */}
-        {mode !== 'idle' && (
+        {mode !== "idle" && (
           <div className="absolute top-4 inset-x-4 flex items-center justify-between z-10">
             <button
               onClick={reset}
-              disabled={mode === 'uploading'}
+              disabled={mode === "uploading"}
               className="w-11 h-11 rounded-full glass-strong text-primary flex items-center justify-center hover:scale-105 transition disabled:opacity-40"
               aria-label="Fechar"
             >
@@ -192,41 +216,46 @@ export default function ScanPage() {
             <div className="glass-strong rounded-full px-3 py-1.5 flex items-center gap-2">
               <span
                 className={clsx(
-                  'w-2 h-2 rounded-full',
-                  mode === 'uploading' ? 'bg-tertiary animate-pulse' : 'bg-primary animate-pulse',
+                  "w-2 h-2 rounded-full",
+                  mode === "uploading"
+                    ? "bg-tertiary animate-pulse"
+                    : "bg-primary animate-pulse",
                 )}
               />
               <span className="font-grotesk text-[10px] uppercase tracking-wider text-on-surface">
-                {mode === 'camera' ? 'Câmera ativa'
-                  : mode === 'preview' ? 'Pronto para enviar'
-                  : mode === 'uploading' ? 'Processando com IA…'
-                  : mode === 'done' ? 'Concluído'
-                  : 'Erro'}
+                {mode === "camera"
+                  ? "Câmera ativa"
+                  : mode === "preview"
+                    ? "Pronto para enviar"
+                    : mode === "uploading"
+                      ? "Processando com IA…"
+                      : mode === "done"
+                        ? "Concluído"
+                        : "Erro"}
               </span>
             </div>
           </div>
         )}
 
         {/* Scanning frame */}
-        {(mode === 'camera' || mode === 'preview') && (
-          <div className="absolute inset-0 flex items-center justify-center p-8 pointer-events-none">
-            <div className="relative w-full max-w-xs aspect-[3/4] scanning-frame rounded-4xl">
-              <div className="absolute top-0 left-0 w-8 h-8 border-l-4 border-t-4 border-primary rounded-tl-2xl" />
-              <div className="absolute top-0 right-0 w-8 h-8 border-r-4 border-t-4 border-primary rounded-tr-2xl" />
-              <div className="absolute bottom-0 left-0 w-8 h-8 border-l-4 border-b-4 border-primary rounded-bl-2xl" />
-              <div className="absolute bottom-0 right-0 w-8 h-8 border-r-4 border-b-4 border-primary rounded-br-2xl" />
-            </div>
-          </div>
+        {(mode === "camera" || mode === "preview") && (
+          <div className="absolute inset-0 pointer-events-none" />
         )}
 
         {/* Uploading progress overlay */}
-        {mode === 'uploading' && (
+        {mode === "uploading" && (
           <div className="absolute inset-0 flex flex-col items-center justify-center gap-6 z-20 px-8">
             <div className="w-20 h-20 rounded-full glass-strong flex items-center justify-center">
-              <Icon name={currentStep.icon} className="text-primary animate-pulse-slow" size={36} />
+              <Icon
+                name={currentStep.icon}
+                className="text-primary animate-pulse-slow"
+                size={36}
+              />
             </div>
             <div className="text-center">
-              <p className="font-sora text-xl text-white font-semibold">{currentStep.label}</p>
+              <p className="font-sora text-xl text-white font-semibold">
+                {currentStep.label}
+              </p>
               <p className="text-white/60 text-sm mt-1">
                 Etapa {step + 1} de {STEPS.length}
               </p>
@@ -241,20 +270,30 @@ export default function ScanPage() {
         )}
 
         {/* Bottom bar */}
-        {mode !== 'idle' && mode !== 'uploading' && (
+        {mode !== "idle" && mode !== "uploading" && (
           <div className="absolute bottom-4 inset-x-0 flex justify-center px-4 z-10">
             <div className="glass-strong rounded-full px-5 py-2.5 flex items-center gap-2 max-w-sm">
               <Icon
-                name={mode === 'error' ? 'error' : mode === 'done' ? 'check_circle' : 'info'}
-                className={clsx('text-primary', mode === 'error' && 'text-error')}
+                name={
+                  mode === "error"
+                    ? "error"
+                    : mode === "done"
+                      ? "check_circle"
+                      : "info"
+                }
+                className={clsx(
+                  "text-primary",
+                  mode === "error" && "text-error",
+                )}
                 size={18}
               />
               <p className="text-sm text-on-surface-variant">
-                {error ?? (mode === 'camera'
-                  ? 'Posicione o recibo no centro'
-                  : mode === 'preview'
-                    ? 'Imagem pronta — toque em Analisar'
-                    : 'Despesa salva com sucesso!')}
+                {error ??
+                  (mode === "camera"
+                    ? "Posicione o recibo no centro"
+                    : mode === "preview"
+                      ? "Imagem pronta — toque em Analisar"
+                      : "Despesa salva com sucesso!")}
               </p>
             </div>
           </div>
@@ -263,7 +302,7 @@ export default function ScanPage() {
 
       {/* Controls */}
       <div className="mt-6 flex flex-col items-center gap-5">
-        {mode === 'idle' && (
+        {mode === "idle" && (
           <div className="grid grid-cols-2 gap-3 w-full max-w-md">
             <button
               onClick={startCamera}
@@ -273,7 +312,9 @@ export default function ScanPage() {
                 <Icon name="camera_enhance" filled />
               </div>
               <p className="font-sora font-semibold">Câmera ao vivo</p>
-              <p className="text-xs text-on-surface-variant text-center">Captura em tempo real</p>
+              <p className="text-xs text-on-surface-variant text-center">
+                Captura em tempo real
+              </p>
             </button>
             <button
               onClick={() => fileInputRef.current?.click()}
@@ -283,19 +324,23 @@ export default function ScanPage() {
                 <Icon name="image" filled />
               </div>
               <p className="font-sora font-semibold">Enviar imagem</p>
-              <p className="text-xs text-on-surface-variant text-center">JPG, PNG ou WEBP</p>
+              <p className="text-xs text-on-surface-variant text-center">
+                JPG, PNG ou WEBP
+              </p>
             </button>
           </div>
         )}
 
-        {mode === 'camera' && (
+        {mode === "camera" && (
           <div className="flex items-center gap-12">
             <button
               onClick={() => fileInputRef.current?.click()}
               className="flex flex-col items-center gap-1 text-on-surface-variant hover:text-primary transition"
             >
               <Icon name="image" size={28} />
-              <span className="font-grotesk text-[10px] uppercase tracking-wider">Galeria</span>
+              <span className="font-grotesk text-[10px] uppercase tracking-wider">
+                Galeria
+              </span>
             </button>
             <button
               onClick={captureFromCamera}
@@ -312,12 +357,14 @@ export default function ScanPage() {
               className="flex flex-col items-center gap-1 text-on-surface-variant hover:text-error transition"
             >
               <Icon name="cancel" size={28} />
-              <span className="font-grotesk text-[10px] uppercase tracking-wider">Cancelar</span>
+              <span className="font-grotesk text-[10px] uppercase tracking-wider">
+                Cancelar
+              </span>
             </button>
           </div>
         )}
 
-        {mode === 'preview' && (
+        {mode === "preview" && (
           <div className="flex items-center gap-3">
             <button
               onClick={reset}
@@ -335,7 +382,7 @@ export default function ScanPage() {
           </div>
         )}
 
-        {mode === 'error' && (
+        {mode === "error" && (
           <button
             onClick={reset}
             className="inline-flex items-center gap-2 px-5 py-3 rounded-full bg-primary text-primary-on font-semibold"
@@ -360,10 +407,10 @@ export default function ScanPage() {
           <div>
             <p className="font-semibold text-sm">Como funciona</p>
             <p className="text-xs text-on-surface-variant mt-1">
-              Sua imagem é enviada ao servidor, processada pelo{' '}
-              <strong>Groq + Llama 4 Vision</strong> para extrair texto e dados estruturados
-              (valor, estabelecimento, data), e salvos no seu banco Supabase. 100% gratuito,
-              sem cartão de crédito.
+              Sua imagem é enviada ao servidor, processada pelo{" "}
+              <strong>Groq + Llama 4 Vision</strong> para extrair texto e dados
+              estruturados (valor, estabelecimento, data), e salvos no seu banco
+              Supabase. 100% gratuito, sem cartão de crédito.
             </p>
           </div>
         </GlassCard>
