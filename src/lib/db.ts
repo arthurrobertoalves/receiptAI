@@ -92,7 +92,7 @@ function toExpense(row: ExpenseRow): Expense {
     id: row.id,
     userId: row.user_id,
     receiptId: row.receipt_id,
-    amount: row.amount,
+    amount: Number(row.amount), // Supabase returns numeric(12,2) as string
     merchant: row.merchant,
     category: row.category as Expense['category'],
     expenseDate: row.expense_date,

@@ -72,5 +72,5 @@ export default async function InsightsPage() {
     totalCount: all.length,
   };
 
-  return <InsightsClient summary={summary} />;
+  return <InsightsClient summary={summary} expenses={all} />;
 }

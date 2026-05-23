@@ -22,8 +22,8 @@ export async function GET() {
     const current = all.filter((e) => monthKey(dateOf(e)) === currentKey);
     const previous = all.filter((e) => monthKey(dateOf(e)) === prevKey);
 
-    const currentTotal = current.reduce((sum, e) => sum + e.amount, 0);
-    const previousTotal = previous.reduce((sum, e) => sum + e.amount, 0);
+    const currentTotal = current.reduce((sum, e) => sum + Number(e.amount), 0);
+    const previousTotal = previous.reduce((sum, e) => sum + Number(e.amount), 0);
 
     let deltaPercent = 0;
     let deltaDirection: 'up' | 'down' | 'flat' = 'flat';
@@ -49,7 +49,7 @@ export async function GET() {
       const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
       const total = all
         .filter((e) => monthKey(dateOf(e)) === key)
-        .reduce((sum, e) => sum + e.amount, 0);
+        .reduce((sum, e) => sum + Number(e.amount), 0);
       monthlyHistory.push({ key, total });
     }
 

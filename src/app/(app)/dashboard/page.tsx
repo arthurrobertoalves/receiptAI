@@ -28,7 +28,7 @@ export default async function DashboardPage() {
   const dateOf = (e: Expense) => e.createdAt.slice(0, 10);
 
   const current = all.filter((e) => monthKey(dateOf(e)) === currentKey);
-  const currentTotal = current.reduce((sum, e) => sum + e.amount, 0);
+  const currentTotal = current.reduce((sum, e) => sum + Number(e.amount), 0);
 
   const byCategoryMap = new Map<Category, number>();
   for (const e of current) {

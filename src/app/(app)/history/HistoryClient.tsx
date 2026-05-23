@@ -58,13 +58,13 @@ export function HistoryClient({ initialExpenses }: { initialExpenses: Expense[] 
     const prevEnd = new Date(now.getFullYear(), now.getMonth(), 0, 23, 59, 59);
     const current = initialExpenses
       .filter((e) => new Date(e.createdAt) >= startOfMonth)
-      .reduce((s, e) => s + e.amount, 0);
+      .reduce((s, e) => s + Number(e.amount), 0);
     const previous = initialExpenses
       .filter((e) => {
         const d = new Date(e.createdAt);
         return d >= prevStart && d <= prevEnd;
       })
-      .reduce((s, e) => s + e.amount, 0);
+      .reduce((s, e) => s + Number(e.amount), 0);
     const delta = previous > 0 ? Math.round(((current - previous) / previous) * 100) : 0;
     return { current, delta };
   }, [initialExpenses]);
