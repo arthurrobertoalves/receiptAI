@@ -1,7 +1,7 @@
 services:
   - type: web
     name: receiptai
-    env: node
+    runtime: node
     plan: free
     region: oregon
     buildCommand: npm install && npm run build
@@ -12,9 +12,9 @@ services:
       - key: JWT_SECRET
         generateValue: true
       - key: SUPABASE_URL
-        sync: false          # preencher no dashboard do Render
+        sync: false
       - key: SUPABASE_SERVICE_ROLE_KEY
         sync: false
-      - key: GOOGLE_VISION_API_KEY
+      - key: GROQ_API_KEY
         sync: false
     healthCheckPath: /api/health
